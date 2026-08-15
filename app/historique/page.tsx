@@ -154,23 +154,14 @@ export default function Historique() {
                   
                   {/* CONTENU (LES LOGS DU JOUR) */}
                   {!isCollapsed && (
-                <div className="flex flex-col gap-3">
-                  {dayLogs.map((log: {
-                    id: string;
-                    users?: { name?: string | null } | null;
-                    tasks?: { name?: string | null; room?: string | null } | null;
-                  }) => (
-                    <div key={log.id} className="border-2 border-gray-200 p-3 rounded-md bg-gray-50 flex items-center justify-between gap-4">
-                      <p className="font-medium text-base leading-snug">
-                        <span className="font-black">{log.users?.name}</span> a fait <span className="font-bold lowercase">{log.tasks?.name}</span> dans la <span className="font-bold lowercase">{log.tasks?.room}</span>
-                      </p>
-                      <span className="text-[10px] font-black uppercase tracking-widest bg-gray-200 text-gray-600 px-2 py-1 rounded shrink-0">
-                        {log.tasks?.room}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    <div className="flex flex-col gap-3">
+                      {dayLogs.map((log) => (
+                        <div key={log.id} className="border-2 border-gray-200 p-3 rounded-md bg-gray-50 flex items-center justify-between gap-4">
+                          <p className="font-medium text-base leading-snug">
+                            <span className="font-black">{log.users?.name}</span> a fait <span className="font-bold lowercase">{log.tasks?.name}</span> dans la <span className="font-bold lowercase">{log.tasks?.room}</span>
+                          </p>
+                          <span className="text-[10px] font-black uppercase tracking-widest bg-gray-200 text-gray-600 px-2 py-1 rounded shrink-0">
+                            {log.tasks?.room}
                           </span>
                         </div>
                       ))}
