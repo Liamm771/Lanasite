@@ -15,8 +15,6 @@ export default function Historique() {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRoom, setSelectedRoom] = useState(ROOMS[0]);
-
-  // Nouvel état pour gérer les jours réduits/ouverts
   const [collapsedDates, setCollapsedDates] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,7 +34,6 @@ export default function Historique() {
         return {
           id: log.id,
           created_at: log.created_at,
-          // On génère la date au format français (ex: 15/08/2026) pour s'en servir de catégorie
           dateStr: new Date(log.created_at).toLocaleDateString("fr-FR"), 
           tasks: task ? { name: task.name, room: task.room } : { name: "Tâche introuvable", room: "Inconnue" },
           users: user ? { name: user.name } : { name: "Inconnu" }
@@ -45,17 +42,14 @@ export default function Historique() {
       
       setLogs(formattedLogs);
 
-      // Logique pour fermer tous les jours sauf aujourd'hui
       const today = new Date().toLocaleDateString("fr-FR");
       const uniqueDates = Array.from(new Set(formattedLogs.map(log => log.dateStr)));
-      // On met toutes les dates dans "collapsedDates" SAUF la date d'aujourd'hui
       setCollapsedDates(uniqueDates.filter(date => date !== today));
     }
     
     fetchLogs();
   }, []);
 
-  // On filtre d'abord selon la barre de recherche et la pièce
   const filteredLogs = logs.filter((log) => {
     const taskName = log.tasks?.name?.toLowerCase() || "";
     const userName = log.users?.name?.toLowerCase() || "";
@@ -67,16 +61,12 @@ export default function Historique() {
     return matchesSearch && matchesRoom;
   });
 
-  // Ensuite, on groupe les logs filtrés par date
   const groupedLogs = filteredLogs.reduce((acc, log) => {
-    if (!acc[log.dateStr]) {
-      acc[log.dateStr] = [];
-    }
+    if (!acc[log.dateStr]) acc[log.dateStr] = [];
     acc[log.dateStr].push(log);
     return acc;
   }, {} as Record<string, typeof filteredLogs>);
 
-  // On récupère les dates (elles sont déjà dans le bon ordre chronologique inversé)
   const sortedDates = Object.keys(groupedLogs);
 
   const toggleDate = (date: string) => {
@@ -88,79 +78,73 @@ export default function Historique() {
   };
 
   return (
-    <div className="min-h-screen relative font-sans text-black bg-white w-full">
-      <div className="absolute top-4 left-4 z-10">
+    <div className="min-h-screen relative w-full">
+      <div className="absolute top-6 left-6 z-10">
         <button 
           onClick={() => router.push("/")}
-          className="text-xs text-gray-400 hover:text-black uppercase tracking-wider font-bold transition-colors"
+          className="text-[10px] text-stone-400 hover:text-stone-800 uppercase tracking-widest font-medium transition-colors"
         >
           ◀ Retour
         </button>
       </div>
 
-      <div className="w-full max-w-2xl mx-auto px-4 pb-8 pt-20">
-        <h1 className="text-4xl font-black tracking-widest text-center uppercase mb-8">
-          HISTORIQUE
-        </h1>
+      <div className="w-full max-w-2xl mx-auto px-6 pb-12 pt-24">
+        <h1 className="font-title text-6xl text-center mb-12 text-stone-800 capitalize">
+  Historique
+</h1>
 
-        <div className="flex flex-col gap-3 mb-8 border-[3px] border-black p-4 rounded-lg bg-gray-50">
+        <div className="flex flex-col gap-4 mb-10 glass-card p-6 rounded-[2rem]">
           <input 
             type="text" 
             placeholder="Rechercher un mot (ex: Liam, Aspirateur)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border-2 border-black p-3 rounded-md font-medium text-sm"
+            className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none focus:ring-1 focus:ring-stone-400 placeholder:text-stone-400"
           />
           <select 
             value={selectedRoom}
             onChange={(e) => setSelectedRoom(e.target.value)}
-            className="w-full border-2 border-black p-3 rounded-md font-bold uppercase tracking-wider text-sm bg-white"
+            className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-medium uppercase tracking-wider text-xs focus:outline-none focus:ring-1 focus:ring-stone-400 text-stone-700"
           >
             {ROOMS.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
 
-        {/* AFFICHAGE GROUPÉ PAR JOUR */}
         <div className="flex flex-col gap-6">
           {sortedDates.length === 0 ? (
-            <p className="text-center text-gray-400 font-bold mt-4">Aucun historique trouvé.</p>
+            <p className="text-center text-stone-400 font-light mt-4">Aucun historique trouvé.</p>
           ) : (
             sortedDates.map((date) => {
               const isCollapsed = collapsedDates.includes(date);
               const dayLogs = groupedLogs[date];
-              
-              // On vérifie si la date est aujourd'hui pour afficher "Aujourd'hui" au lieu de "15/08/2026"
               const today = new Date().toLocaleDateString("fr-FR");
               const displayTitle = date === today ? "Aujourd'hui" : date;
 
               return (
-                <div key={date} className="w-full border-[3px] border-black p-5 bg-white rounded-lg shadow-sm transition-all">
+                <div key={date} className="w-full glass-card p-6 rounded-[2rem] transition-all">
                   
-                  {/* EN-TÊTE DE L'ACCORDÉON (LA DATE) */}
                   <div 
-                    className={`flex justify-between items-center cursor-pointer ${isCollapsed ? '' : 'border-b-2 border-black pb-4 mb-4'}`}
+                    className={`flex justify-between items-center cursor-pointer ${isCollapsed ? '' : 'border-b border-stone-200/60 pb-5 mb-5'}`}
                     onClick={() => toggleDate(date)}
                   >
                     <div className="flex items-center gap-3 select-none">
-                      <span className="text-xl text-gray-400">{isCollapsed ? '▶' : '▼'}</span>
-                      <h2 className="text-2xl font-bold uppercase">{displayTitle}</h2>
+                      <span className="text-sm text-stone-300">{isCollapsed ? '▶' : '▼'}</span>
+                      <h2 className="text-lg font-medium uppercase tracking-wide text-stone-800">{displayTitle}</h2>
                     </div>
                     
-                    {/* Petit compteur du nombre de tâches faites ce jour-là */}
-                    <span className="text-sm font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                    <span className="text-[10px] font-medium text-stone-500 uppercase tracking-widest bg-white/60 px-3 py-1 rounded-full border border-stone-200/50">
                       {dayLogs.length} tâche{dayLogs.length > 1 ? 's' : ''}
                     </span>
                   </div>
                   
-                  {/* CONTENU (LES LOGS DU JOUR) */}
                   {!isCollapsed && (
                     <div className="flex flex-col gap-3">
                       {dayLogs.map((log) => (
-                        <div key={log.id} className="border-2 border-gray-200 p-3 rounded-md bg-gray-50 flex items-center justify-between gap-4">
-                          <p className="font-medium text-base leading-snug">
-                            <span className="font-black">{log.users?.name}</span> a fait <span className="font-bold lowercase">{log.tasks?.name}</span> dans la <span className="font-bold lowercase">{log.tasks?.room}</span>
+                        <div key={log.id} className="bg-white/40 border border-stone-100 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                          <p className="font-light text-sm text-stone-700 leading-relaxed">
+                            <span className="font-medium text-stone-900">{log.users?.name}</span> a fait <span className="font-medium lowercase text-stone-900">{log.tasks?.name}</span> dans la <span className="font-medium lowercase text-stone-900">{log.tasks?.room}</span>
                           </p>
-                          <span className="text-[10px] font-black uppercase tracking-widest bg-gray-200 text-gray-600 px-2 py-1 rounded shrink-0">
+                          <span className="text-[9px] font-medium uppercase tracking-widest text-stone-500 bg-stone-100/80 px-2 py-1 rounded shrink-0 self-start sm:self-auto">
                             {log.tasks?.room}
                           </span>
                         </div>

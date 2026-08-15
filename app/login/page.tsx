@@ -6,7 +6,6 @@ import { supabase } from "../../lib/supabase";
 
 export default function Login() {
   const router = useRouter();
-  // État pour stocker dynamiquement les profils de Supabase
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +17,6 @@ export default function Login() {
       
       if (data && data.length > 0) {
         setUsers(data);
-        // On sélectionne automatiquement le premier nom de la liste par défaut
         setSelectedUser(data[0].name);
       }
     }
@@ -50,40 +48,43 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 font-sans text-black bg-white w-full">
-      <form onSubmit={handleLogin} className="w-full max-w-sm border-[3px] border-black p-6 bg-white rounded-lg shadow-sm flex flex-col gap-6">
-        <h1 className="text-3xl font-black text-center uppercase tracking-widest border-b-2 border-black pb-4">
-          Connexion
-        </h1>
-
-        <div className="flex flex-col gap-2">
-          <label className="font-bold uppercase tracking-wider text-sm">Qui es-tu ?</label>
-          <select 
-            value={selectedUser}
-            onChange={(e) => setSelectedUser(e.target.value)}
-            className="border-2 border-black p-3 rounded-md text-lg bg-white"
-          >
-            {/* Génération automatique des options depuis la base de données */}
-            {users.map((u) => (
-              <option key={u.id} value={u.name}>{u.name}</option>
-            ))}
-          </select>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 w-full">
+      <form onSubmit={handleLogin} className="w-full max-w-sm glass-card rounded-[2rem] p-10 flex flex-col gap-8">
+        <div className="text-center">
+          <h1 className="font-title text-6xl text-center text-stone-800 mb-2">
+  Palais de maitresse Lana
+</h1>
+          <p className="text-xs tracking-widest uppercase text-stone-400 mt-2">Connexion</p>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="font-bold uppercase tracking-wider text-sm">Mot de passe</label>
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border-2 border-black p-3 rounded-md text-lg"
-          />
+        <div className="flex flex-col gap-6 mt-4">
+          <div className="flex flex-col gap-2">
+            <select 
+              value={selectedUser}
+              onChange={(e) => setSelectedUser(e.target.value)}
+              className="w-full bg-transparent border-b border-stone-300 py-2 text-stone-800 focus:outline-none focus:border-stone-800 transition-colors cursor-pointer"
+            >
+              {users.map((u) => (
+                <option key={u.id} value={u.name}>{u.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <input 
+              type="password" 
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-transparent border-b border-stone-300 py-2 text-stone-800 focus:outline-none focus:border-stone-800 transition-colors placeholder:text-stone-400 placeholder:font-light"
+            />
+          </div>
         </div>
 
-        {error && <p className="text-red-500 font-bold text-center">{error}</p>}
+        {error && <p className="text-red-500 font-medium text-xs text-center">{error}</p>}
 
-        <button type="submit" className="w-full border-[3px] border-black bg-black text-white px-6 py-3 mt-2 text-lg font-bold uppercase tracking-wider rounded-lg active:bg-gray-800 transition-colors">
-          Valider
+        <button type="submit" className="w-full bg-stone-800 text-white px-6 py-4 mt-4 text-xs font-medium uppercase tracking-[0.15em] rounded-full hover:bg-stone-700 transition-all shadow-lg shadow-stone-800/20">
+          Entrer
         </button>
       </form>
     </div>

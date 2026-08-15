@@ -28,7 +28,6 @@ export default function Home() {
   }, [router]);
 
   async function loadTasks() {
-    // MODIFICATION ICI : On ajoute le tri par fréquence croissante (ascending: true)
     const { data: tasksData, error: taskError } = await supabase.from("tasks").select("*").order("frequency_days", { ascending: true });
     const { data: logsData, error: logError } = await supabase.from("logs").select("*").order("created_at", { ascending: false });
     const { data: usersData, error: userError } = await supabase.from("users").select("*");
@@ -67,7 +66,7 @@ export default function Home() {
           id: t.id,
           room: t.room,
           name: t.name,
-          frequency_days: t.frequency_days, // On conserve l'info
+          frequency_days: t.frequency_days,
           done: isDone,
           date: dateStr,
           user: userName,
@@ -126,40 +125,39 @@ export default function Home() {
   const isAdmin = currentUser.role === "admin";
 
   return (
-    <div className="min-h-screen relative font-sans text-black bg-white w-full">
+    <div className="min-h-screen w-full relative">
       
-      <div className="absolute top-4 left-4 flex flex-col items-start gap-2 z-10">
+      <div className="absolute top-6 left-6 flex flex-col items-start gap-3 z-10">
         <button 
           onClick={handleLogout}
-          className="text-xs text-gray-400 hover:text-black uppercase tracking-wider font-bold transition-colors"
+          className="text-[10px] text-stone-400 hover:text-stone-800 uppercase tracking-widest font-medium transition-colors"
         >
           Déconnexion
         </button>
         <button 
           onClick={() => router.push("/historique")}
-          className="text-xs text-gray-400 hover:text-black uppercase tracking-wider font-bold transition-colors"
+          className="text-[10px] text-stone-400 hover:text-stone-800 uppercase tracking-widest font-medium transition-colors"
         >
           Historique
         </button>
         {isAdmin && (
           <button 
             onClick={() => router.push("/gerer")}
-            className="text-xs text-gray-400 hover:text-black uppercase tracking-wider font-bold transition-colors"
+            className="text-[10px] text-stone-400 hover:text-stone-800 uppercase tracking-widest font-medium transition-colors"
           >
             Gérer
           </button>
         )}
       </div>
 
-      <div className="w-full max-w-2xl mx-auto px-4 pb-8 pt-20">
+      <div className="w-full max-w-2xl mx-auto px-6 pb-12 pt-24">
         
-        <h1 className="text-5xl font-black tracking-widest text-center uppercase mb-10">
-          Au service de Maitresse
-        </h1>
+        <p className="font-title text-6xl text-center mb-16 text-stone-800 capitalize">
+  Ménage
+</p>
 
         <main className="flex flex-col gap-6 w-full">
           {ROOMS.map((room) => {
-            // Les tâches de cette pièce arrivent déjà triées par fréquence grâce à Supabase
             const roomTasks = tasks.filter(t => t.room === room);
             if (roomTasks.length === 0) return null;
             
@@ -167,45 +165,44 @@ export default function Home() {
             const isCollapsed = collapsedRooms.includes(room);
 
             return (
-              <div key={room} className="w-full border-[3px] border-black p-5 bg-white rounded-lg shadow-sm transition-all">
+              <div key={room} className="w-full glass-card rounded-[2rem] p-6 transition-all duration-300">
                 
                 <div 
-                  className={`flex justify-between items-center cursor-pointer ${isCollapsed ? '' : 'border-b-2 border-black pb-4 mb-4'}`}
+                  className={`flex justify-between items-center cursor-pointer ${isCollapsed ? '' : 'border-b border-stone-200/60 pb-5 mb-5'}`}
                   onClick={() => toggleRoom(room)}
                 >
                   <div className="flex items-center gap-3 select-none">
-                    <span className="text-xl text-gray-400">{isCollapsed ? '▶' : '▼'}</span>
-                    <h2 className="text-2xl font-bold">{room}</h2>
+                    <span className="text-sm text-stone-300">{isCollapsed ? '▶' : '▼'}</span>
+                    <h2 className="text-lg font-medium tracking-wide uppercase text-stone-800">{room}</h2>
                   </div>
                   
                   <input 
                     type="checkbox" 
                     checked={isRoomDone}
                     readOnly
-                    className="w-7 h-7 border-2 border-black rounded-sm accent-black pointer-events-none"
+                    className="w-5 h-5 rounded-md border-stone-300 accent-stone-800 pointer-events-none opacity-50"
                   />
                 </div>
                 
                 {!isCollapsed && (
-                  <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-4">
                     {roomTasks.map((task) => (
-                      <div key={task.id} className="flex flex-col gap-2 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                      <div key={task.id} className="flex flex-col gap-1 pb-4 border-b border-stone-100 last:border-0 last:pb-0">
                         
                         <div className="flex justify-between items-start">
-                          <span className="text-xl font-medium">{task.name}</span>
-                          {/* Optionnel mais pratique : on affiche discrètement la récurrence */}
-                          <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                          <span className="text-base font-light text-stone-800">{task.name}</span>
+                          <span className="text-[10px] font-medium text-stone-400 bg-stone-100/50 px-2 py-1 rounded-full">
                             Tous les {task.frequency_days}j
                           </span>
                         </div>
                         
                         <div className="flex justify-between items-center w-full mt-1">
                           {task.done ? (
-                            <span className="text-sm text-gray-500">
+                            <span className="text-[11px] text-stone-400 uppercase tracking-widest">
                               Réalisé le {task.date} par {task.user}
                             </span>
                           ) : (
-                            <span className="text-sm text-black font-bold uppercase tracking-wide">
+                            <span className="text-[11px] text-stone-800 font-medium uppercase tracking-widest">
                               À faire
                             </span>
                           )}
@@ -213,7 +210,7 @@ export default function Home() {
                             type="checkbox" 
                             checked={task.done}
                             onChange={() => toggleTask(task)}
-                            className="w-8 h-8 border-2 border-black cursor-pointer rounded-sm accent-black shrink-0"
+                            className="w-6 h-6 rounded-md border-stone-300 cursor-pointer accent-stone-800 shrink-0 transition-transform active:scale-95"
                           />
                         </div>
 
@@ -226,8 +223,8 @@ export default function Home() {
           })}
         </main>
 
-        <div className="mt-12 flex justify-center w-full">
-          <button className="w-full border-[3px] border-black bg-black text-white px-6 py-4 text-xl font-bold uppercase tracking-wider rounded-lg active:bg-gray-800 transition-colors">
+        <div className="mt-16 flex justify-center w-full">
+          <button className="w-full bg-stone-800 text-white px-6 py-5 text-sm font-medium uppercase tracking-[0.2em] rounded-full active:bg-stone-700 transition-all shadow-xl shadow-stone-800/10 hover:-translate-y-0.5">
             Envoyer
           </button>
         </div>

@@ -11,24 +11,19 @@ const ROOMS = [
 
 export default function Gerer() {
   const router = useRouter();
-  
-  // -- SYSTÈME D'ONGLETS --
-  const [activeTab, setActiveTab] = useState<"menage" | "Mes Subs">("menage");
+  const [activeTab, setActiveTab] = useState<"menage" | "profils">("menage");
 
-  // -- ÉTATS POUR LE MÉNAGE --
   const [tasks, setTasks] = useState<any[]>([]);
   const [name, setName] = useState("");
   const [room, setRoom] = useState(ROOMS[0]);
   const [frequency, setFrequency] = useState<number | "">(1);
   const [errorMenage, setErrorMenage] = useState("");
-  const [collapsedRooms, setCollapsedRooms] = useState<string[]>(ROOMS); // Toutes fermées par défaut
+  const [collapsedRooms, setCollapsedRooms] = useState<string[]>(ROOMS);
 
-  // -- ÉTATS POUR LES PROFILS --
   const [users, setUsers] = useState<any[]>([]);
   const [newUserName, setNewUserName] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [errorProfil, setErrorProfil] = useState("");
-  // Objet pour stocker temporairement les mots de passe modifiés par l'admin
   const [updatedPasswords, setUpdatedPasswords] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
@@ -47,7 +42,6 @@ export default function Gerer() {
     fetchUsers();
   }, [router]);
 
-  // -- REQUÊTES BDD --
   async function fetchTasks() {
     const { data } = await supabase.from("tasks").select("*").order("room");
     if (data) setTasks(data);
@@ -58,7 +52,6 @@ export default function Gerer() {
     if (data) setUsers(data);
   }
 
-  // -- ACTIONS MÉNAGE --
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMenage("");
@@ -101,7 +94,6 @@ export default function Gerer() {
     }
   };
 
-  // -- ACTIONS PROFILS --
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorProfil("");
@@ -111,14 +103,13 @@ export default function Gerer() {
       return;
     }
 
-    // Le rôle est forcé sur "user"
     const { data, error } = await supabase
       .from("users")
       .insert([{ name: newUserName, password: newUserPassword, role: "user" }])
       .select();
 
     if (error) {
-      setErrorProfil("Erreur lors de l'ajout : " + error.message);
+      setErrorProfil("Erreur : " + error.message);
     } else if (data) {
       setUsers([...users, data[0]]);
       setNewUserName("");
@@ -127,13 +118,11 @@ export default function Gerer() {
   };
 
   const handleDeleteUser = async (id: string, userName: string) => {
-    // Sécurité supplémentaire : impossible de supprimer Lana
     if (userName.toLowerCase() === "lana") {
       alert("Le compte administrateur principal ne peut pas être supprimé.");
       return;
     }
-
-    if (window.confirm(`Es-tu sûr de vouloir supprimer le profil de ${userName} ? L'historique associé pourrait être impacté.`)) {
+    if (window.confirm(`Es-tu sûr de vouloir supprimer le profil de ${userName} ?`)) {
       await supabase.from("users").delete().eq("id", id);
       setUsers(users.filter(u => u.id !== id));
     }
@@ -155,34 +144,33 @@ export default function Gerer() {
   };
 
   return (
-    <div className="min-h-screen relative font-sans text-black bg-white w-full">
-      <div className="absolute top-4 left-4 z-10">
+    <div className="min-h-screen relative w-full">
+      <div className="absolute top-6 left-6 z-10">
         <button 
           onClick={() => router.push("/")}
-          className="text-xs text-gray-400 hover:text-black uppercase tracking-wider font-bold transition-colors"
+          className="text-[10px] text-stone-400 hover:text-stone-800 uppercase tracking-widest font-medium transition-colors"
         >
           ◀ Retour
         </button>
       </div>
 
-      <div className="w-full max-w-2xl mx-auto px-4 pb-8 pt-20">
+      <div className="w-full max-w-2xl mx-auto px-6 pb-12 pt-24">
         
-        <h1 className="text-4xl font-black tracking-widest text-center uppercase mb-8">
-          GESTION
-        </h1>
+        <h1 className="font-title text-6xl text-center mb-12 text-stone-800 capitalize">
+  Gestion
+</h1>
 
-        {/* NAVIGATION DES ONGLETS */}
-        <div className="flex w-full mb-10 border-[3px] border-black rounded-lg overflow-hidden bg-white">
+        {/* NAVIGATION DES ONGLETS (Style Pilule) */}
+        <div className="flex bg-stone-200/50 rounded-full p-1.5 mb-10 mx-auto max-w-sm">
           <button 
             onClick={() => setActiveTab("menage")}
-            className={`flex-1 py-4 text-sm sm:text-base font-black uppercase tracking-widest transition-colors ${activeTab === "menage" ? "bg-black text-white" : "text-black hover:bg-gray-100"}`}
+            className={`flex-1 py-3 text-xs font-medium uppercase tracking-[0.15em] rounded-full transition-all ${activeTab === "menage" ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"}`}
           >
             Ménage
           </button>
-          <div className="w-[3px] bg-black"></div>
           <button 
             onClick={() => setActiveTab("profils")}
-            className={`flex-1 py-4 text-sm sm:text-base font-black uppercase tracking-widest transition-colors ${activeTab === "profils" ? "bg-black text-white" : "text-black hover:bg-gray-100"}`}
+            className={`flex-1 py-3 text-xs font-medium uppercase tracking-[0.15em] rounded-full transition-all ${activeTab === "profils" ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-800"}`}
           >
             Profils
           </button>
@@ -192,59 +180,55 @@ export default function Gerer() {
         {/* ==================== ONGLET : MÉNAGE ==================== */}
         {activeTab === "menage" && (
           <div className="flex flex-col gap-10 animate-fade-in">
-            {/* Formulaire Ajout Tâche */}
-            <form onSubmit={handleAddTask} className="border-[3px] border-black p-5 bg-white rounded-lg shadow-sm flex flex-col gap-4">
-              <h2 className="text-2xl font-bold uppercase">Ajouter une tâche</h2>
+            <form onSubmit={handleAddTask} className="glass-card p-8 rounded-[2rem] flex flex-col gap-5">
+              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 mb-2">Ajouter une tâche</h2>
               
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold uppercase tracking-wider">Pièce</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-medium uppercase tracking-widest text-stone-500">Pièce</label>
                 <select 
                   value={room} 
                   onChange={(e) => setRoom(e.target.value)}
-                  className="border-2 border-black p-2 rounded-md font-medium"
+                  className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none focus:border-stone-400"
                 >
                   {ROOMS.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold uppercase tracking-wider">Nom (ex: Four, Aspirateur)</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-medium uppercase tracking-widest text-stone-500">Nom (ex: Four, Aspirateur)</label>
                 <input 
                   type="text" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)}
-                  className="border-2 border-black p-2 rounded-md font-medium"
-                  placeholder="Nom de la tâche..."
+                  className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none focus:border-stone-400"
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold uppercase tracking-wider">À faire tous les (1 à 30 jours)</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-medium uppercase tracking-widest text-stone-500">À faire tous les (1 à 30 jours)</label>
                 <input 
                   type="number" 
-                  min="1"
-                  max="30"
+                  min="1" max="30"
                   value={frequency} 
                   onChange={(e) => setFrequency(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="border-2 border-black p-2 rounded-md font-medium"
+                  className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none focus:border-stone-400"
                 />
               </div>
 
-              {errorMenage && <p className="text-red-500 font-bold text-sm">{errorMenage}</p>}
+              {errorMenage && <p className="text-red-500 text-xs">{errorMenage}</p>}
 
-              <button type="submit" className="w-full border-[3px] border-black bg-black text-white px-4 py-3 mt-2 font-bold uppercase tracking-wider rounded-md active:bg-gray-800 transition-colors">
+              <button type="submit" className="w-full bg-stone-800 text-white px-4 py-4 mt-4 text-xs font-medium uppercase tracking-widest rounded-full hover:bg-stone-700 transition-all">
                 Créer la tâche
               </button>
             </form>
 
-            {/* Liste des Tâches Existantes */}
-            <div className="flex flex-col gap-4">
-              <h2 className="text-2xl font-bold uppercase border-b-2 border-black pb-2">Tâches existantes</h2>
+            <div className="flex flex-col gap-6">
+              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 border-b border-stone-200 pb-3">Tâches existantes</h2>
               
               {tasks.length === 0 ? (
-                <p className="text-gray-400 italic font-medium">Aucune tâche enregistrée pour le moment.</p>
+                <p className="text-stone-400 font-light text-sm">Aucune tâche enregistrée.</p>
               ) : (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                   {ROOMS.map((roomName) => {
                     const roomTasks = tasks.filter(t => t.room === roomName);
                     if (roomTasks.length === 0) return null;
@@ -252,30 +236,30 @@ export default function Gerer() {
                     const isCollapsed = collapsedRooms.includes(roomName);
 
                     return (
-                      <div key={roomName} className="w-full border-2 border-black p-3 rounded-md bg-white">
+                      <div key={roomName} className="glass-card p-5 rounded-2xl">
                         <div 
-                          className={`flex justify-between items-center cursor-pointer ${isCollapsed ? '' : 'border-b-2 border-black pb-2 mb-3'}`}
+                          className={`flex justify-between items-center cursor-pointer ${isCollapsed ? '' : 'border-b border-stone-200/60 pb-4 mb-4'}`}
                           onClick={() => toggleRoom(roomName)}
                         >
-                          <div className="flex items-center gap-2 select-none">
-                            <span className="text-sm text-gray-400">{isCollapsed ? '▶' : '▼'}</span>
-                            <h3 className="text-xl font-bold uppercase">{roomName}</h3>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-stone-300">{isCollapsed ? '▶' : '▼'}</span>
+                            <h3 className="text-base font-medium uppercase tracking-wide text-stone-800">{roomName}</h3>
                           </div>
                         </div>
 
                         {!isCollapsed && (
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-3">
                             {roomTasks.map((task) => (
-                              <div key={task.id} className="flex justify-between items-center bg-gray-50 border border-gray-200 p-2 rounded-md">
+                              <div key={task.id} className="flex justify-between items-center bg-white/40 border border-stone-100 p-3 rounded-xl">
                                 <div className="flex flex-col">
-                                  <span className="font-bold">{task.name}</span>
-                                  <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+                                  <span className="font-light text-stone-800">{task.name}</span>
+                                  <span className="text-[10px] text-stone-500 font-medium uppercase tracking-widest mt-1">
                                     Tous les {task.frequency_days} jour(s)
                                   </span>
                                 </div>
                                 <button 
                                   onClick={() => handleDeleteTask(task.id)}
-                                  className="border-2 border-black bg-white text-black px-3 py-1 text-xs font-bold uppercase hover:bg-black hover:text-white transition-colors"
+                                  className="text-[10px] font-medium uppercase tracking-widest text-red-500 hover:text-red-700 px-3 py-2 bg-red-50/50 rounded-lg transition-colors"
                                 >
                                   Supprimer
                                 </button>
@@ -296,30 +280,27 @@ export default function Gerer() {
         {activeTab === "profils" && (
           <div className="flex flex-col gap-10 animate-fade-in">
             
-            {/* LE COMPTE DE LANA (Isolé, tout en haut) */}
             {users.filter(u => u.name.toLowerCase() === "lana").map((user) => (
-              <div key={user.id} className="border-[3px] border-black p-4 rounded-md bg-white flex flex-col gap-3">
-                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-xl uppercase tracking-wide">{user.name}</span>
-                    <span className="text-xs px-2 py-1 rounded font-bold uppercase tracking-wider bg-black text-white">
+              <div key={user.id} className="glass-card p-6 rounded-[2rem] flex flex-col gap-4 border-stone-300/60">
+                <div className="flex justify-between items-center border-b border-stone-200/60 pb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="font-light text-xl uppercase tracking-widest text-stone-800">{user.name}</span>
+                    <span className="text-[9px] px-3 py-1 rounded-full font-medium uppercase tracking-widest bg-stone-800 text-white">
                       {user.role}
                     </span>
                   </div>
-                  {/* Pas de bouton supprimer ici */}
                 </div>
-
-                <div className="flex gap-2 mt-1">
+                <div className="flex gap-3">
                   <input 
                     type="text" 
                     placeholder="Nouveau mot de passe..."
                     value={updatedPasswords[user.id] || ""}
                     onChange={(e) => setUpdatedPasswords({ ...updatedPasswords, [user.id]: e.target.value })}
-                    className="flex-1 border-2 border-gray-300 p-2 rounded-md text-sm"
+                    className="flex-1 bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none"
                   />
                   <button 
                     onClick={() => handleUpdatePassword(user.id, user.name)}
-                    className="border-2 border-black bg-white text-black px-4 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors rounded-md"
+                    className="bg-stone-800 text-white px-5 text-xs font-medium uppercase tracking-widest rounded-xl hover:bg-stone-700 transition-colors"
                   >
                     Modifier
                   </button>
@@ -327,73 +308,69 @@ export default function Gerer() {
               </div>
             ))}
 
-            {/* Formulaire Ajout Profil */}
-            <form onSubmit={handleAddUser} className="border-[3px] border-black p-5 bg-white rounded-lg shadow-sm flex flex-col gap-4">
-              <h2 className="text-2xl font-bold uppercase">Ajouter un sub</h2>
+            <form onSubmit={handleAddUser} className="glass-card p-8 rounded-[2rem] flex flex-col gap-5">
+              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 mb-2">Ajouter un profil</h2>
               
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold uppercase tracking-wider">Prénom</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-medium uppercase tracking-widest text-stone-500">Prénom</label>
                 <input 
                   type="text" 
                   value={newUserName} 
                   onChange={(e) => setNewUserName(e.target.value)}
-                  className="border-2 border-black p-2 rounded-md font-medium"
-                  placeholder="Ex: Clara"
+                  className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none focus:border-stone-400"
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold uppercase tracking-wider">Mot de passe</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-medium uppercase tracking-widest text-stone-500">Mot de passe</label>
                 <input 
                   type="text" 
                   value={newUserPassword} 
                   onChange={(e) => setNewUserPassword(e.target.value)}
-                  className="border-2 border-black p-2 rounded-md font-medium"
+                  className="w-full bg-white/50 border border-stone-200 p-3 rounded-xl font-light text-sm focus:outline-none focus:border-stone-400"
                 />
               </div>
 
-              {errorProfil && <p className="text-red-500 font-bold text-sm">{errorProfil}</p>}
+              {errorProfil && <p className="text-red-500 text-xs">{errorProfil}</p>}
 
-              <button type="submit" className="w-full border-[3px] border-black bg-black text-white px-4 py-3 mt-2 font-bold uppercase tracking-wider rounded-md active:bg-gray-800 transition-colors">
-                Recruter le sub
+              <button type="submit" className="w-full bg-stone-800 text-white px-4 py-4 mt-4 text-xs font-medium uppercase tracking-widest rounded-full hover:bg-stone-700 transition-all">
+                Créer le profil
               </button>
             </form>
 
-            {/* Liste des autres Profils Existants */}
-            <div className="flex flex-col gap-4">
-              <h2 className="text-2xl font-bold uppercase border-b-2 border-black pb-2">Mes Subs</h2>
+            <div className="flex flex-col gap-6">
+              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 border-b border-stone-200 pb-3">Profils existants</h2>
               
               <div className="flex flex-col gap-4">
                 {users.filter(u => u.name.toLowerCase() !== "lana").map((user) => (
-                  <div key={user.id} className="border-2 border-black p-4 rounded-md bg-white flex flex-col gap-3">
+                  <div key={user.id} className="glass-card p-5 rounded-2xl flex flex-col gap-4">
                     
-                    <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-xl uppercase tracking-wide">{user.name}</span>
-                        <span className="text-xs px-2 py-1 rounded font-bold uppercase tracking-wider bg-gray-200 text-black">
+                    <div className="flex justify-between items-center border-b border-stone-200/60 pb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="font-light text-lg uppercase tracking-wide text-stone-800">{user.name}</span>
+                        <span className="text-[9px] px-2 py-1 rounded-full font-medium uppercase tracking-widest bg-stone-200 text-stone-600">
                           {user.role}
                         </span>
                       </div>
-                      
                       <button 
                         onClick={() => handleDeleteUser(user.id, user.name)}
-                        className="text-xs text-red-500 font-bold uppercase hover:text-red-700 tracking-wider transition-colors"
+                        className="text-[10px] text-red-500 font-medium uppercase hover:text-red-700 tracking-widest transition-colors"
                       >
                         Supprimer
                       </button>
                     </div>
 
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-3">
                       <input 
                         type="text" 
                         placeholder="Nouveau mot de passe..."
                         value={updatedPasswords[user.id] || ""}
                         onChange={(e) => setUpdatedPasswords({ ...updatedPasswords, [user.id]: e.target.value })}
-                        className="flex-1 border-2 border-gray-300 p-2 rounded-md text-sm"
+                        className="flex-1 bg-white/50 border border-stone-100 p-2.5 rounded-xl font-light text-sm focus:outline-none"
                       />
                       <button 
                         onClick={() => handleUpdatePassword(user.id, user.name)}
-                        className="border-2 border-black bg-white text-black px-4 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors rounded-md"
+                        className="bg-stone-200 text-stone-800 px-4 text-[10px] font-medium uppercase tracking-widest rounded-xl hover:bg-stone-300 transition-colors"
                       >
                         Modifier
                       </button>
