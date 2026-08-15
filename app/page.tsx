@@ -154,7 +154,7 @@ export default function Home() {
       <div className="w-full max-w-2xl mx-auto px-4 pb-8 pt-20">
         
         <h1 className="text-5xl font-black tracking-widest text-center uppercase mb-10">
-          TITRE
+          Au service de Maitresse
         </h1>
 
         <main className="flex flex-col gap-6 w-full">

@@ -13,7 +13,7 @@ export default function Gerer() {
   const router = useRouter();
   
   // -- SYSTÈME D'ONGLETS --
-  const [activeTab, setActiveTab] = useState<"menage" | "profils">("menage");
+  const [activeTab, setActiveTab] = useState<"menage" | "Mes Subs">("menage");
 
   // -- ÉTATS POUR LE MÉNAGE --
   const [tasks, setTasks] = useState<any[]>([]);
@@ -329,7 +329,7 @@ export default function Gerer() {
 
             {/* Formulaire Ajout Profil */}
             <form onSubmit={handleAddUser} className="border-[3px] border-black p-5 bg-white rounded-lg shadow-sm flex flex-col gap-4">
-              <h2 className="text-2xl font-bold uppercase">Ajouter un profil</h2>
+              <h2 className="text-2xl font-bold uppercase">Ajouter un sub</h2>
               
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-bold uppercase tracking-wider">Prénom</label>
@@ -355,13 +355,13 @@ export default function Gerer() {
               {errorProfil && <p className="text-red-500 font-bold text-sm">{errorProfil}</p>}
 
               <button type="submit" className="w-full border-[3px] border-black bg-black text-white px-4 py-3 mt-2 font-bold uppercase tracking-wider rounded-md active:bg-gray-800 transition-colors">
-                Créer le profil
+                Recruter le sub
               </button>
             </form>
 
             {/* Liste des autres Profils Existants */}
             <div className="flex flex-col gap-4">
-              <h2 className="text-2xl font-bold uppercase border-b-2 border-black pb-2">Profils existants</h2>
+              <h2 className="text-2xl font-bold uppercase border-b-2 border-black pb-2">Mes Subs</h2>
               
               <div className="flex flex-col gap-4">
                 {users.filter(u => u.name.toLowerCase() !== "lana").map((user) => (
