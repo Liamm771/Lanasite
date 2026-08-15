@@ -27,9 +27,10 @@ export default function Historique() {
       const safeTasks = tasksData || [];
       const safeUsers = usersData || [];
 
-      const formattedLogs = safeLogs.map(log => {
-        const task = safeTasks.find(t => t.id == log.task_id);
-        const user = safeUsers.find(u => u.id == log.user_id);
+      // Ajout de ': any' pour TypeScript
+      const formattedLogs = safeLogs.map((log: any) => {
+        const task = safeTasks.find((t: any) => t.id == log.task_id);
+        const user = safeUsers.find((u: any) => u.id == log.user_id);
         
         return {
           id: log.id,
@@ -43,14 +44,16 @@ export default function Historique() {
       setLogs(formattedLogs);
 
       const today = new Date().toLocaleDateString("fr-FR");
-      const uniqueDates = Array.from(new Set(formattedLogs.map(log => log.dateStr)));
+      // Ajout de ': any' pour TypeScript
+      const uniqueDates = Array.from(new Set(formattedLogs.map((log: any) => log.dateStr)));
       setCollapsedDates(uniqueDates.filter(date => date !== today));
     }
     
     fetchLogs();
   }, []);
 
-  const filteredLogs = logs.filter((log) => {
+  // Ajout de ': any' pour TypeScript
+  const filteredLogs = logs.filter((log: any) => {
     const taskName = log.tasks?.name?.toLowerCase() || "";
     const userName = log.users?.name?.toLowerCase() || "";
     const roomName = log.tasks?.room || "";
@@ -61,7 +64,8 @@ export default function Historique() {
     return matchesSearch && matchesRoom;
   });
 
-  const groupedLogs = filteredLogs.reduce((acc, log) => {
+  // Ajout de ': any' pour TypeScript
+  const groupedLogs = filteredLogs.reduce((acc: any, log: any) => {
     if (!acc[log.dateStr]) acc[log.dateStr] = [];
     acc[log.dateStr].push(log);
     return acc;
@@ -90,8 +94,8 @@ export default function Historique() {
 
       <div className="w-full max-w-2xl mx-auto px-6 pb-12 pt-24">
         <h1 className="font-title text-6xl text-center mb-12 text-stone-800 capitalize">
-  Historique
-</h1>
+          Historique
+        </h1>
 
         <div className="flex flex-col gap-4 mb-10 glass-card p-6 rounded-[2rem]">
           <input 
@@ -139,7 +143,8 @@ export default function Historique() {
                   
                   {!isCollapsed && (
                     <div className="flex flex-col gap-3">
-                      {dayLogs.map((log) => (
+                      {/* Ajout de ': any' pour TypeScript ici aussi */}
+                      {dayLogs.map((log: any) => (
                         <div key={log.id} className="bg-white/40 border border-stone-100 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
                           <p className="font-light text-sm text-stone-700 leading-relaxed">
                             <span className="font-medium text-stone-900">{log.users?.name}</span> a fait <span className="font-medium lowercase text-stone-900">{log.tasks?.name}</span> dans la <span className="font-medium lowercase text-stone-900">{log.tasks?.room}</span>
