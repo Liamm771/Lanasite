@@ -52,7 +52,7 @@ export default function Login() {
       <form onSubmit={handleLogin} className="w-full max-w-sm glass-card rounded-[2rem] p-10 flex flex-col gap-8">
         <div className="text-center">
           <h1 className="font-title text-6xl text-center text-stone-800 mb-2">
-  Palais de maitresse Lana
+  Servir Maitresse Lana
 </h1>
           <p className="text-xs tracking-widest uppercase text-stone-400 mt-2">Connexion</p>
         </div>

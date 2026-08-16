@@ -223,12 +223,6 @@ export default function Home() {
           })}
         </main>
 
-        <div className="mt-16 flex justify-center w-full">
-          <button className="w-full bg-stone-800 text-white px-6 py-5 text-sm font-medium uppercase tracking-[0.2em] rounded-full active:bg-stone-700 transition-all shadow-xl shadow-stone-800/10 hover:-translate-y-0.5">
-            Envoyer
-          </button>
-        </div>
-
       </div>
     </div>
   );

@@ -309,7 +309,7 @@ export default function Gerer() {
             ))}
 
             <form onSubmit={handleAddUser} className="glass-card p-8 rounded-[2rem] flex flex-col gap-5">
-              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 mb-2">Ajouter un profil</h2>
+              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 mb-2">Ajouter un sub</h2>
               
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-medium uppercase tracking-widest text-stone-500">Prénom</label>
@@ -334,12 +334,12 @@ export default function Gerer() {
               {errorProfil && <p className="text-red-500 text-xs">{errorProfil}</p>}
 
               <button type="submit" className="w-full bg-stone-800 text-white px-4 py-4 mt-4 text-xs font-medium uppercase tracking-widest rounded-full hover:bg-stone-700 transition-all">
-                Créer le profil
+                Créer le sub
               </button>
             </form>
 
             <div className="flex flex-col gap-6">
-              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 border-b border-stone-200 pb-3">Profils existants</h2>
+              <h2 className="text-lg font-light uppercase tracking-widest text-stone-800 border-b border-stone-200 pb-3">Mes subs</h2>
               
               <div className="flex flex-col gap-4">
                 {users.filter(u => u.name.toLowerCase() !== "lana").map((user) => (
