@@ -47,13 +47,19 @@ export default function Home() {
 
         if (latestLog) {
           const doneDate = new Date(latestLog.created_at);
-          const expireDate = new Date(doneDate);
+          
+          // 1. On prend le jour exact où la tâche a été faite et on fixe l'heure à minuit (00:00:00)
+          const baseDate = new Date(doneDate);
+          baseDate.setHours(0, 0, 0, 0);
+
+          // 2. On ajoute le nombre de jours de fréquence pour trouver le jour d'expiration (à minuit pile)
+          const expireDate = new Date(baseDate);
           expireDate.setDate(expireDate.getDate() + t.frequency_days);
-          expireDate.setHours(23, 59, 59, 999);
 
           const now = new Date();
 
-          if (now <= expireDate) {
+          // 3. Tant que l'heure actuelle est avant l'expiration, la tâche reste cochée
+          if (now < expireDate) {
             isDone = true;
             dateStr = doneDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" });
             const user = (usersData || []).find(u => u.id === latestLog.user_id);
